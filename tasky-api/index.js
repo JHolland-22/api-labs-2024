@@ -1,12 +1,19 @@
 import dotenv from 'dotenv';
 import express from 'express';
-import tasksRouter from './api/tasks';
+import tasksRouter from './api/tasks'; // Import tasks router
+import './db';
+
 
 dotenv.config();
 
 const app = express();
 
-const port = process.env.PORT || 8080; // Default to 8080 if PORT is not defined
+const port = process.env.PORT || 8080;
 
-// Middleware to parse JSON bodies
-app.use(express.json());
+app.use(express.json());  // To parse JSON request bodies
+
+app.use('/api/tasks', tasksRouter);  // Use tasksRouter for /api/tasks endpoints
+
+app.listen(port, () => {
+  console.info(`Server running at http://localhost:${port}`);
+});

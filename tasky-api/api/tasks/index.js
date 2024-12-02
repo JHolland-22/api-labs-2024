@@ -1,12 +1,15 @@
 import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { tasksData } from './tasksData';
+import asyncHandler from 'express-async-handler';
+
 
 const router = express.Router();
 
 // Get all tasks
-router.get('/', (_, res) => {
-    res.json(tasksData);
+router.get('/', async (req, res) => {
+    const tasks = await Task.find().populate('userId', 'username');
+    res.status(200).json(tasks);
 });
 
 // Get task details
@@ -19,25 +22,12 @@ router.get('/:id', (req, res) => {
     return res.status(200).json(task);
 });
 
-// Add a new task
-router.post('/', (req, res) => {
-    const { title, description, deadline, priority, done } = req.body;
 
-    const newTask = {
-        id: uuidv4(),
-        title,
-        description,
-        deadline,
-        priority,
-        done,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-    };
-
-    tasksData.tasks.push(newTask);
-    tasksData.total_results++;
-    res.status(201).json(newTask);
-});
+// create a task
+router.post('/', asyncHandler(async (req, res) => {
+    const task = await Task(req.body).save();
+    res.status(201).json(task);
+}));
 
 // Update a task
 router.put('/:id', (req, res) => {

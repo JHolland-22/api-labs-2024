@@ -1,26 +1,25 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import usersRouter from './api/users';
 import moviesRouter from './api/movies';
-import './db'; 
-import defaultErrHandler from './errHandler';
+import './db'; // Database connection
+import defaultErrHandler from './errHandler'; // Error handler
 
-dotenv.config(); // Load environment variables
+dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
-app.use(cors()); // Enable Cross-Origin Resource Sharing
-app.use(express.json()); // Parse JSON request bodies
+app.use(cors());
+app.use(express.json());
+app.use('/api/users', usersRouter);
+app.use('/api/movies', moviesRouter);
 
-app.use('/api/movies', moviesRouter); // Register movie routes
 
-app.use((req, res) => {
-    res.status(404).json({ message: 'Route not found' }); // Handle 404 errors
-});
-
-app.use(defaultErrHandler); // Default error handler
+app.use(defaultErrHandler); // Error handling middleware
 
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+  console.info(`Server running at http://localhost:${port}`);
 });
+

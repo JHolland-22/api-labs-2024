@@ -2,7 +2,6 @@ import movieModel from './movieModel';
 import asyncHandler from 'express-async-handler';
 import express from 'express';
 const router = express.Router();
-
 router.get('/', asyncHandler(async (req, res) => {
     const movies = await movieModel.find();
     res.status(200).json(movies);

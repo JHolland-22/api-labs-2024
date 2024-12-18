@@ -1,5 +1,9 @@
 import express from 'express';
 import User from './userModel';
+import jwt from 'jsonwebtoken';
+import asyncHandler from 'express-async-handler';
+
+
 
 const router = express.Router();
 
@@ -13,35 +17,27 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Register/Create User or Authenticate
-router.post('/', async (req, res) => {
+//.... code as before
+
+// register(Create)/Authenticate User
+router.post('/', asyncHandler(async (req, res) => {
     try {
+        if (!req.body.username || !req.body.password) {
+            return res.status(400).json({ success: false, msg: 'Username and password are required.' });
+        }
         if (req.query.action === 'register') {
-            // Save new user to the DB
-            const newUser = new User(req.body);
-            await newUser.save();
-            res.status(201).json({
-                code: 201,
-                msg: 'Successfully created new user.'
-            });
+            await registerUser(req, res);
         } else {
-            // Authenticate user
-            const user = await User.findOne(req.body);
-            if (!user) {
-                return res.status(401).json({ code: 401, msg: 'Authentication failed' });
-            } else {
-                return res.status(200).json({ code: 200, msg: 'Authentication successful', token: 'TEMPORARY_TOKEN' });
-            }
+            await authenticateUser(req, res);
         }
     } catch (error) {
-        if (error.name === 'ValidationError') {
-            // Handle validation errors
-            return res.status(400).json({ code: 400, msg: 'Validation error', error: error.message });
-        }
-        // Handle other errors
-        res.status(500).json({ code: 500, msg: 'Server error', error: error.message });
+        // Log the error and return a generic error message
+        console.error(error);
+        res.status(500).json({ success: false, msg: 'Internal server error.' });
     }
-});
+}));
+
+// ... Code as before
 
 // Update a user
 router.put('/:id', async (req, res) => {
@@ -57,5 +53,7 @@ router.put('/:id', async (req, res) => {
         res.status(500).json({ code: 500, msg: 'Error updating user', error: error.message });
     }
 });
+
+
 
 export default router;

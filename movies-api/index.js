@@ -7,6 +7,7 @@ import './db';
 import defaultErrHandler from './errHandler'; 
 dotenv.config();
 
+
 const app = express();
 const port = process.env.PORT || 5000;
 
